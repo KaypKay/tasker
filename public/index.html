@@ -1,0 +1,2739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #e9ecef;
+        }
+
+        .nav-btn.active {
+            background: white;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        input, select, textarea, button {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .task-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .task-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .task-title {
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-in-progress { background: #d1ecf1; color: #0c5460; }
+        .status-completed { background: #d4edda; color: #155724; }
+
+        .priority-high { border-left: 4px solid #dc3545; }
+        .priority-medium { border-left: 4px solid #ffc107; }
+        .priority-low { border-left: 4px solid #28a745; }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .list-item {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .smart-input-container {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .smart-textbox {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 15px;
+            font-family: inherit;
+        }
+
+        .smart-textbox::placeholder {
+            color: #adb5bd;
+            font-style: italic;
+        }
+
+        .auto-selections {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .auto-select-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .auto-select-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .detected-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #0066cc;
+            margin-top: 10px;
+        }
+
+        .ai-suggestion {
+            background: #f8f9fa;
+            border: 1px dashed #adb5bd;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .success-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+
+        .success-popup.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .success-popup .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            float: right;
+            margin-left: 10px;
+            padding: 0;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0;
+            background: none;
+            border: none;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-row.full-width {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        /* Database View Controls */
+        .database-controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+
+        .view-switcher {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .view-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filters-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto auto auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .clear-filters-btn {
+            padding: 8px 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .group-by-select {
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .sort-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .sort-btn {
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .sort-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Calendar View */
+        .calendar-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .calendar-nav-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .calendar-nav-btn:hover {
+            background: #e9ecef;
+        }
+
+        .calendar-month-year {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin: 0 10px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            border-collapse: collapse;
+        }
+
+        .calendar-day-header {
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: bold;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            color: #495057;
+            font-size: 14px;
+        }
+
+        .calendar-day {
+            min-height: 120px;
+            border-bottom: 1px solid #dee2e6;
+            border-right: 1px solid #dee2e6;
+            padding: 8px;
+            position: relative;
+            background: white;
+        }
+
+        .calendar-day:nth-child(7n) {
+            border-right: none;
+        }
+
+        .calendar-day.other-month {
+            background: #f8f9fa;
+            color: #adb5bd;
+        }
+
+        .calendar-day.today {
+            background: #e7f3ff;
+            border: 2px solid #667eea;
+        }
+
+        .calendar-day-number {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .calendar-task {
+            background: #667eea;
+            color: white;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-bottom: 2px;
+            cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .calendar-task.priority-high {
+            background: #dc3545;
+        }
+
+        .calendar-task.priority-medium {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .calendar-task.priority-low {
+            background: #28a745;
+        }
+
+        .calendar-task.status-completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        /* Group Views */
+        .grouped-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .group-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .group-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: bold;
+            color: #495057;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .group-count {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .group-tasks {
+            padding: 20px;
+        }
+
+        /* Sortable Headers */
+        .sortable-header {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        .sortable-header:hover {
+            background: #f8f9fa;
+        }
+
+        .sort-indicator {
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 12px;
+            opacity: 0.5;
+        }
+
+        .sortable-header.sort-asc .sort-indicator::after {
+            content: "▲";
+            opacity: 1;
+        }
+
+        .sortable-header.sort-desc .sort-indicator::after {
+            content: "▼";
+            opacity: 1;
+        }
+
+        /* Drag and Drop */
+        .draggable {
+            cursor: move;
+        }
+
+        .draggable:hover {
+            opacity: 0.8;
+        }
+
+        .drag-over {
+            background-color: rgba(102, 126, 234, 0.1) !important;
+            border: 2px dashed #667eea !important;
+        }
+
+        .calendar-task {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-task:hover {
+            transform: scale(1.02);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="success-popup" id="successPopup">
+        <span id="successMessage"></span>
+        <button class="close-btn" onclick="hideSuccessPopup()">&times;</button>
+    </div>
+
+    <!-- Task Edit Modal -->
+    <div id="taskEditModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Task</h2>
+                <button class="close" onclick="closeModal('taskEditModal')">&times;</button>
+            </div>
+            <form>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editTaskTitle">Title</label>
+                        <input type="text" id="editTaskTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTaskStatus">Status</label>
+                        <select id="editTaskStatus">
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editTaskPriority">Priority</label>
+                        <select id="editTaskPriority">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTaskDueDate">Due Date</label>
+                        <input type="date" id="editTaskDueDate">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editTaskAssignees">Assigned To</label>
+                        <select id="editTaskAssignees" multiple style="height: 120px;">
+                            <!-- Options populated dynamically -->
+                        </select>
+                        <small>Hold Ctrl/Cmd to select multiple</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTaskProjects">Projects</label>
+                        <select id="editTaskProjects" multiple style="height: 120px;">
+                            <!-- Options populated dynamically -->
+                        </select>
+                        <small>Hold Ctrl/Cmd to select multiple</small>
+                    </div>
+                </div>
+                <div class="form-row full-width">
+                    <div class="form-group">
+                        <label for="editTaskDescription">Description</label>
+                        <textarea id="editTaskDescription" rows="4"></textarea>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="button" class="btn" style="background: #6c757d; margin-right: 10px;" onclick="closeModal('taskEditModal')">Cancel</button>
+                    <button type="button" class="btn" onclick="saveTaskEdit()">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Person Edit Modal -->
+    <div id="personEditModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Person</h2>
+                <button class="close" onclick="closeModal('personEditModal')">&times;</button>
+            </div>
+            <form>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editPersonName">Full Name</label>
+                        <input type="text" id="editPersonName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPersonEmail">Email (optional)</label>
+                        <input type="email" id="editPersonEmail">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editPersonNickname1">Nickname 1</label>
+                        <input type="text" id="editPersonNickname1">
+                    </div>
+                    <div class="form-group">
+                        <label for="editPersonNickname2">Nickname 2</label>
+                        <input type="text" id="editPersonNickname2">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editPersonNickname3">Nickname 3</label>
+                        <input type="text" id="editPersonNickname3">
+                    </div>
+                </div>
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="button" class="btn" style="background: #6c757d; margin-right: 10px;" onclick="closeModal('personEditModal')">Cancel</button>
+                    <button type="button" class="btn" onclick="savePersonEdit()">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Project Edit Modal -->
+    <div id="projectEditModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Project</h2>
+                <button class="close" onclick="closeModal('projectEditModal')">&times;</button>
+            </div>
+            <form>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editProjectName">Project Name</label>
+                        <input type="text" id="editProjectName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editProjectStatus">Status</label>
+                        <select id="editProjectStatus">
+                            <option value="active">Active</option>
+                            <option value="completed">Completed</option>
+                            <option value="on-hold">On Hold</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row full-width">
+                    <div class="form-group">
+                        <label for="editProjectDescription">Description</label>
+                        <textarea id="editProjectDescription" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editKeyword1">Keyword 1</label>
+                        <input type="text" id="editKeyword1">
+                    </div>
+                    <div class="form-group">
+                        <label for="editKeyword2">Keyword 2</label>
+                        <input type="text" id="editKeyword2">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editKeyword3">Keyword 3</label>
+                        <input type="text" id="editKeyword3">
+                    </div>
+                    <div class="form-group">
+                        <label for="editKeyword4">Keyword 4</label>
+                        <input type="text" id="editKeyword4">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editKeyword5">Keyword 5</label>
+                        <input type="text" id="editKeyword5">
+                    </div>
+                </div>
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="button" class="btn" style="background: #6c757d; margin-right: 10px;" onclick="closeModal('projectEditModal')">Cancel</button>
+                    <button type="button" class="btn" onclick="saveProjectEdit()">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Todo Management System</h1>
+            <p>Manage tasks, people, and projects efficiently</p>
+        </div>
+
+        <div class="nav">
+            <button class="nav-btn active" onclick="showSection('tasks')">Tasks</button>
+            <button class="nav-btn" onclick="showSection('people')">People</button>
+            <button class="nav-btn" onclick="showSection('projects')">Projects</button>
+        </div>
+
+        <div class="content">
+            <!-- Tasks Section -->
+            <div id="tasks" class="section active">
+                <div class="smart-input-container">
+                    <h3>Add New Task</h3>
+                    <input type="text"
+                           id="smartTaskInput"
+                           class="smart-textbox"
+                           placeholder="e.g., 'Review marketing report with John by tomorrow' or 'Meet with Sarah about Biomass project'"
+                           oninput="parseSmartInput()"
+                           onkeypress="handleEnterKey(event)">
+                    
+                    <div class="auto-selections">
+                        <div class="auto-select-group">
+                            <label class="auto-select-label">Assigned to</label>
+                            <select id="smartAssignee">
+                                <option value="">Select person</option>
+                            </select>
+                        </div>
+                        <div class="auto-select-group">
+                            <label class="auto-select-label">Project</label>
+                            <select id="smartProject">
+                                <option value="">Select project</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="addSmartTask()">Add Task</button>
+                    </div>
+                    
+                    <div id="detectedInfo" class="detected-info" style="display: none;"></div>
+                </div>
+                
+                <div class="form-section" style="display: none;" id="advancedForm">
+                    <h3>Advanced Options</h3>
+                    <div class="form-grid">
+                        <input type="text" id="taskTitle" placeholder="Task title" required>
+                        <select id="taskAssignee">
+                            <option value="">Select person</option>
+                        </select>
+                        <select id="taskProject">
+                            <option value="">Select project</option>
+                        </select>
+                        <select id="taskPriority">
+                            <option value="low">Low Priority</option>
+                            <option value="medium" selected>Medium Priority</option>
+                            <option value="high">High Priority</option>
+                        </select>
+                        <input type="date" id="taskDueDate">
+                        <select id="taskStatus">
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <textarea id="taskDescription" placeholder="Task description"></textarea>
+                    <br><br>
+                    <button class="btn" onclick="addTask()">Add Task</button>
+                    <button class="btn" onclick="toggleAdvancedForm()" style="background: #6c757d;">Hide Advanced</button>
+                </div>
+                
+                <button class="btn" onclick="toggleAdvancedForm()" style="background: #6c757d; margin-bottom: 20px;">Show Advanced Options</button>
+
+                <!-- Database Controls -->
+                <div class="database-controls">
+                    <div class="view-switcher">
+                        <button class="view-btn active" onclick="switchView('list')" id="listViewBtn">📋 List</button>
+                        <button class="view-btn" onclick="switchView('table')" id="tableViewBtn">📊 Table</button>
+                        <button class="view-btn" onclick="switchView('calendar')" id="calendarViewBtn">📅 Calendar</button>
+                    </div>
+
+                    <div class="filters-row">
+                        <div class="filter-group">
+                            <label class="filter-label">Search</label>
+                            <input type="text" class="search-input" id="taskSearch" placeholder="Search tasks..." oninput="applyFilters()">
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">Assignee</label>
+                            <select class="filter-select" id="assigneeFilter" onchange="applyFilters()">
+                                <option value="">All Assignees</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">Project</label>
+                            <select class="filter-select" id="projectFilter" onchange="applyFilters()">
+                                <option value="">All Projects</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">Status</label>
+                            <select class="filter-select" id="statusFilter" onchange="applyFilters()">
+                                <option value="">Active Tasks Only</option>
+                                <option value="pending">Pending</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="completed">Show Completed</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">Priority</label>
+                            <select class="filter-select" id="priorityFilter" onchange="applyFilters()">
+                                <option value="">All Priority</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">Group By</label>
+                            <select class="group-by-select" id="groupBySelect" onchange="applyGrouping()">
+                                <option value="">No Grouping</option>
+                                <option value="status">Status</option>
+                                <option value="priority">Priority</option>
+                                <option value="assignee">Assignee</option>
+                                <option value="project">Project</option>
+                                <option value="due_date">Due Date</option>
+                            </select>
+                        </div>
+
+                        <button class="clear-filters-btn" onclick="clearAllFilters()">Clear Filters</button>
+                    </div>
+                </div>
+
+                <!-- List View -->
+                <div id="listView" class="view-container">
+                    <div id="tasksList" class="task-grid"></div>
+                </div>
+
+                <!-- Table View -->
+                <div id="tableView" class="view-container" style="display: none;">
+                    <table id="tasksTable">
+                        <thead>
+                            <tr>
+                                <th class="sortable-header" onclick="sortTasks('title')">Title<span class="sort-indicator"></span></th>
+                                <th class="sortable-header" onclick="sortTasks('status')">Status<span class="sort-indicator"></span></th>
+                                <th class="sortable-header" onclick="sortTasks('priority')">Priority<span class="sort-indicator"></span></th>
+                                <th class="sortable-header" onclick="sortTasks('assignee')">Assigned To<span class="sort-indicator"></span></th>
+                                <th class="sortable-header" onclick="sortTasks('project')">Project<span class="sort-indicator"></span></th>
+                                <th class="sortable-header" onclick="sortTasks('due_date')">Due Date<span class="sort-indicator"></span></th>
+                                <th class="sortable-header" onclick="sortTasks('created_at')">Created<span class="sort-indicator"></span></th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasksTableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Calendar View -->
+                <div id="calendarView" class="view-container" style="display: none;">
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <div class="calendar-nav">
+                                <button class="calendar-nav-btn" onclick="changeMonth(-1)">◀</button>
+                                <div class="calendar-month-year" id="calendarMonthYear"></div>
+                                <button class="calendar-nav-btn" onclick="changeMonth(1)">▶</button>
+                                <button class="btn" onclick="goToToday()" style="margin-left: 10px;">Today</button>
+                            </div>
+                        </div>
+                        <div class="calendar-grid" id="calendarGrid"></div>
+                    </div>
+                </div>
+
+                <!-- Grouped View -->
+                <div id="groupedView" class="view-container grouped-container" style="display: none;">
+                </div>
+            </div>
+
+            <!-- People Section -->
+            <div id="people" class="section">
+                <div class="form-section">
+                    <h3>Add New Person</h3>
+                    <div class="form-grid">
+                        <input type="text" id="personName" placeholder="Full name" required>
+                        <input type="email" id="personEmail" placeholder="Email address (optional)">
+                    </div>
+                    <div class="form-grid">
+                        <input type="text" id="nickname1" placeholder="Nickname/First name (e.g., John, Johnny)">
+                        <input type="text" id="nickname2" placeholder="Alternative name (e.g., JD, J)">
+                        <input type="text" id="nickname3" placeholder="Another name (e.g., Boss, Chief)">
+                    </div>
+                    <small style="color: #6c757d; margin-bottom: 15px; display: block;">💡 Add nicknames so tasks can find this person by any of these names</small>
+                    <button class="btn" onclick="addPerson()">Add Person</button>
+                </div>
+
+                <div id="peopleList"></div>
+                
+                <h3>People Table View</h3>
+                <table id="peopleTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="peopleTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Projects Section -->
+            <div id="projects" class="section">
+                <div class="form-section">
+                    <h3>Add New Project</h3>
+                    <div class="form-grid">
+                        <input type="text" id="projectName" placeholder="Project name" required>
+                    </div>
+                    <textarea id="projectDescription" placeholder="Project description"></textarea>
+                    <br><br>
+
+                    <h4 style="margin: 20px 0 10px 0;">Keywords for Auto-Assignment</h4>
+                    <div class="form-grid">
+                        <input type="text" id="keyword1" placeholder="Keyword 1 (e.g., website, web, site)">
+                        <input type="text" id="keyword2" placeholder="Keyword 2 (e.g., design, mockup)">
+                        <input type="text" id="keyword3" placeholder="Keyword 3 (e.g., frontend, ui)">
+                        <input type="text" id="keyword4" placeholder="Keyword 4 (e.g., backend, api)">
+                        <input type="text" id="keyword5" placeholder="Keyword 5 (e.g., database, db)">
+                    </div>
+                    <small style="color: #6c757d; margin-bottom: 15px; display: block;">💡 Tasks containing these keywords will be automatically assigned to this project</small>
+                    <button class="btn" onclick="addProject()">Add Project</button>
+                </div>
+
+                <div id="projectsList"></div>
+                
+                <h3>Projects Table View</h3>
+                <table id="projectsTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let people = [];
+        let projects = [];
+        let tasks = [];
+        let filteredTasks = [];
+        let currentView = 'list';
+        let currentSort = { field: 'created_at', direction: 'desc' };
+        let currentGroupBy = '';
+        let currentFilters = {
+            search: '',
+            assignee: '',
+            project: '',
+            status: '',
+            priority: ''
+        };
+
+        // Calendar variables
+        let currentDate = new Date();
+        let calendarDate = new Date();
+
+        // Navigation
+        function showSection(sectionName) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(sectionName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // API calls
+        async function fetchData(endpoint) {
+            const response = await fetch(`/api/${endpoint}`);
+            return response.json();
+        }
+
+        async function postData(endpoint, data) {
+            const response = await fetch(`/api/${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return response.json();
+        }
+
+        async function updateTask(id, data) {
+            const response = await fetch(`/api/tasks/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return response.json();
+        }
+
+        async function deleteTask(id) {
+            const response = await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+            return response.json();
+        }
+
+        // Load data
+        async function loadPeople() {
+            people = await fetchData('people');
+            updatePeopleDropdown();
+            renderPeople();
+        }
+
+        async function loadProjects() {
+            projects = await fetchData('projects');
+            updateProjectsDropdown();
+            renderProjects();
+        }
+
+        async function loadTasks() {
+            tasks = await fetchData('tasks');
+            // Hide completed tasks by default on initial load
+            filteredTasks = tasks.filter(task => task.status !== 'completed');
+            updateFilterDropdowns();
+            renderCurrentView();
+        }
+
+        // Database functionality
+        function switchView(viewType) {
+            currentView = viewType;
+
+            // Update button states
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(viewType + 'ViewBtn').classList.add('active');
+
+            // Hide all views
+            document.querySelectorAll('.view-container').forEach(container => {
+                container.style.display = 'none';
+            });
+
+            // Show selected view
+            if (currentGroupBy && viewType !== 'calendar') {
+                document.getElementById('groupedView').style.display = 'block';
+            } else {
+                document.getElementById(viewType + 'View').style.display = 'block';
+            }
+
+            renderCurrentView();
+        }
+
+        function renderCurrentView() {
+            if (currentGroupBy && currentView !== 'calendar') {
+                renderGroupedView();
+            } else {
+                switch(currentView) {
+                    case 'list':
+                        renderTasks();
+                        break;
+                    case 'table':
+                        renderTasksTable();
+                        break;
+                    case 'calendar':
+                        renderCalendar();
+                        break;
+                }
+            }
+        }
+
+        function updateFilterDropdowns() {
+            // Update assignee filter - use people database directly to avoid duplicates
+            const assigneeFilter = document.getElementById('assigneeFilter');
+            const currentAssigneeValue = assigneeFilter.value;
+            assigneeFilter.innerHTML = '<option value="">All Assignees</option>';
+
+            // Use the people array directly - this ensures no duplicates and shows all available people
+            people.forEach(person => {
+                const option = document.createElement('option');
+                option.value = person.id;
+                option.textContent = person.name;
+                if (person.id == currentAssigneeValue) option.selected = true;
+                assigneeFilter.appendChild(option);
+            });
+
+            // Update project filter - use projects database directly to avoid duplicates
+            const projectFilter = document.getElementById('projectFilter');
+            const currentProjectValue = projectFilter.value;
+            projectFilter.innerHTML = '<option value="">All Projects</option>';
+
+            // Use the projects array directly - this ensures no duplicates and shows all available projects
+            projects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project.id;
+                option.textContent = project.name;
+                if (project.id == currentProjectValue) option.selected = true;
+                projectFilter.appendChild(option);
+            });
+        }
+
+        function applyFilters() {
+            currentFilters.search = document.getElementById('taskSearch').value.toLowerCase();
+            currentFilters.assignee = document.getElementById('assigneeFilter').value;
+            currentFilters.project = document.getElementById('projectFilter').value;
+            currentFilters.status = document.getElementById('statusFilter').value;
+            currentFilters.priority = document.getElementById('priorityFilter').value;
+
+            filteredTasks = tasks.filter(task => {
+                // Hide completed tasks by default (unless specifically filtering for them)
+                if (task.status === 'completed' && currentFilters.status !== 'completed') {
+                    return false;
+                }
+
+                // Search filter
+                if (currentFilters.search && !task.title.toLowerCase().includes(currentFilters.search) &&
+                    (!task.description || !task.description.toLowerCase().includes(currentFilters.search))) {
+                    return false;
+                }
+
+                // Assignee filter
+                if (currentFilters.assignee &&
+                    (!task.assignees || !task.assignees.some(a => a.id == currentFilters.assignee))) {
+                    return false;
+                }
+
+                // Project filter
+                if (currentFilters.project &&
+                    (!task.projects || !task.projects.some(p => p.id == currentFilters.project))) {
+                    return false;
+                }
+
+                // Status filter
+                if (currentFilters.status && task.status !== currentFilters.status) {
+                    return false;
+                }
+
+                // Priority filter
+                if (currentFilters.priority && task.priority !== currentFilters.priority) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            applySorting();
+            renderCurrentView();
+        }
+
+        function sortTasks(field) {
+            if (currentSort.field === field) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.field = field;
+                currentSort.direction = 'asc';
+            }
+
+            // Update sort indicators
+            document.querySelectorAll('.sortable-header').forEach(header => {
+                header.classList.remove('sort-asc', 'sort-desc');
+            });
+
+            const currentHeader = document.querySelector(`[onclick="sortTasks('${field}')"]`);
+            if (currentHeader) {
+                currentHeader.classList.add('sort-' + currentSort.direction);
+            }
+
+            applySorting();
+            renderCurrentView();
+        }
+
+        function applySorting() {
+            filteredTasks.sort((a, b) => {
+                let aValue, bValue;
+
+                switch(currentSort.field) {
+                    case 'title':
+                        aValue = a.title.toLowerCase();
+                        bValue = b.title.toLowerCase();
+                        break;
+                    case 'status':
+                        aValue = a.status;
+                        bValue = b.status;
+                        break;
+                    case 'priority':
+                        const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+                        aValue = priorityOrder[a.priority] || 0;
+                        bValue = priorityOrder[b.priority] || 0;
+                        break;
+                    case 'assignee':
+                        aValue = a.assignees && a.assignees.length > 0 ? a.assignees[0].name.toLowerCase() : '';
+                        bValue = b.assignees && b.assignees.length > 0 ? b.assignees[0].name.toLowerCase() : '';
+                        break;
+                    case 'project':
+                        aValue = a.projects && a.projects.length > 0 ? a.projects[0].name.toLowerCase() : '';
+                        bValue = b.projects && b.projects.length > 0 ? b.projects[0].name.toLowerCase() : '';
+                        break;
+                    case 'due_date':
+                        aValue = a.due_date ? new Date(a.due_date) : new Date('9999-12-31');
+                        bValue = b.due_date ? new Date(b.due_date) : new Date('9999-12-31');
+                        break;
+                    case 'created_at':
+                    default:
+                        aValue = new Date(a.created_at);
+                        bValue = new Date(b.created_at);
+                        break;
+                }
+
+                if (currentSort.direction === 'asc') {
+                    return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+                } else {
+                    return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+                }
+            });
+        }
+
+        function applyGrouping() {
+            currentGroupBy = document.getElementById('groupBySelect').value;
+
+            if (currentGroupBy) {
+                document.querySelectorAll('.view-container').forEach(container => {
+                    container.style.display = 'none';
+                });
+                document.getElementById('groupedView').style.display = 'block';
+            } else {
+                switchView(currentView);
+            }
+
+            renderCurrentView();
+        }
+
+        function clearAllFilters() {
+            document.getElementById('taskSearch').value = '';
+            document.getElementById('assigneeFilter').value = '';
+            document.getElementById('projectFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('priorityFilter').value = '';
+            document.getElementById('groupBySelect').value = '';
+
+            currentFilters = {
+                search: '',
+                assignee: '',
+                project: '',
+                status: '',
+                priority: ''
+            };
+            currentGroupBy = '';
+
+            filteredTasks = [...tasks];
+            applySorting();
+            switchView(currentView);
+        }
+
+        // Calendar functions
+        function renderCalendar() {
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+            const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+            document.getElementById('calendarMonthYear').textContent =
+                monthNames[calendarDate.getMonth()] + ' ' + calendarDate.getFullYear();
+
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+
+            // Add day headers
+            dayNames.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day-header';
+                dayHeader.textContent = day;
+                grid.appendChild(dayHeader);
+            });
+
+            // Get first day of month and last day
+            const firstDay = new Date(calendarDate.getFullYear(), calendarDate.getMonth(), 1);
+            const lastDay = new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+            // Create 42 cells (6 weeks)
+            for (let i = 0; i < 42; i++) {
+                const cellDate = new Date(startDate);
+                cellDate.setDate(startDate.getDate() + i);
+
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day';
+
+                if (cellDate.getMonth() !== calendarDate.getMonth()) {
+                    dayCell.classList.add('other-month');
+                }
+
+                if (cellDate.toDateString() === new Date().toDateString()) {
+                    dayCell.classList.add('today');
+                }
+
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'calendar-day-number';
+                dayNumber.textContent = cellDate.getDate();
+                dayCell.appendChild(dayNumber);
+
+                // Add tasks for this day
+                const dayTasks = filteredTasks.filter(task => {
+                    if (!task.due_date) return false;
+                    const taskDate = new Date(task.due_date);
+                    return taskDate.toDateString() === cellDate.toDateString();
+                });
+
+                dayTasks.forEach(task => {
+                    const taskElement = document.createElement('div');
+                    taskElement.className = `calendar-task priority-${task.priority} status-${task.status} draggable`;
+                    taskElement.textContent = task.title;
+                    taskElement.draggable = true;
+                    taskElement.dataset.taskId = task.id;
+                    taskElement.onclick = () => editTask(task.id);
+
+                    taskElement.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', task.id);
+                        e.dataTransfer.effectAllowed = 'move';
+                    });
+
+                    dayCell.appendChild(taskElement);
+                });
+
+                // Add drop functionality to calendar cells
+                dayCell.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    dayCell.classList.add('drag-over');
+                });
+
+                dayCell.addEventListener('dragleave', (e) => {
+                    dayCell.classList.remove('drag-over');
+                });
+
+                dayCell.addEventListener('drop', async (e) => {
+                    e.preventDefault();
+                    dayCell.classList.remove('drag-over');
+
+                    const taskId = e.dataTransfer.getData('text/plain');
+                    const newDueDate = cellDate.toISOString().split('T')[0];
+
+                    // Update task due date
+                    const task = tasks.find(t => t.id == taskId);
+                    if (task) {
+                        await updateTask(taskId, { ...task, due_date: newDueDate });
+                        showSuccessPopup('Task due date updated!');
+                        loadTasks();
+                    }
+                });
+
+                grid.appendChild(dayCell);
+            }
+        }
+
+        function changeMonth(delta) {
+            calendarDate.setMonth(calendarDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function goToToday() {
+            calendarDate = new Date();
+            renderCalendar();
+        }
+
+        // Grouped view functions
+        function renderGroupedView() {
+            const groupedView = document.getElementById('groupedView');
+            groupedView.innerHTML = '';
+
+            if (!currentGroupBy) return;
+
+            const groups = {};
+
+            filteredTasks.forEach(task => {
+                let groupKey = '';
+
+                switch(currentGroupBy) {
+                    case 'status':
+                        groupKey = task.status || 'No Status';
+                        break;
+                    case 'priority':
+                        groupKey = task.priority || 'No Priority';
+                        break;
+                    case 'assignee':
+                        groupKey = task.assignees && task.assignees.length > 0
+                            ? task.assignees.map(a => a.name).join(', ')
+                            : 'Unassigned';
+                        break;
+                    case 'project':
+                        groupKey = task.projects && task.projects.length > 0
+                            ? task.projects.map(p => p.name).join(', ')
+                            : 'No Project';
+                        break;
+                    case 'due_date':
+                        if (task.due_date) {
+                            const due = new Date(task.due_date);
+                            const today = new Date();
+                            const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+
+                            if (diffDays < 0) {
+                                groupKey = 'Overdue';
+                            } else if (diffDays === 0) {
+                                groupKey = 'Due Today';
+                            } else if (diffDays <= 7) {
+                                groupKey = 'Due This Week';
+                            } else if (diffDays <= 30) {
+                                groupKey = 'Due This Month';
+                            } else {
+                                groupKey = 'Due Later';
+                            }
+                        } else {
+                            groupKey = 'No Due Date';
+                        }
+                        break;
+                }
+
+                if (!groups[groupKey]) {
+                    groups[groupKey] = [];
+                }
+                groups[groupKey].push(task);
+            });
+
+            // Sort groups by key
+            const sortedGroups = Object.keys(groups).sort();
+
+            sortedGroups.forEach(groupKey => {
+                const groupSection = document.createElement('div');
+                groupSection.className = 'group-section';
+
+                const groupHeader = document.createElement('div');
+                groupHeader.className = 'group-header';
+                groupHeader.innerHTML = `
+                    <span>${groupKey}</span>
+                    <span class="group-count">${groups[groupKey].length}</span>
+                `;
+                groupSection.appendChild(groupHeader);
+
+                const groupTasks = document.createElement('div');
+                groupTasks.className = 'group-tasks';
+
+                if (currentView === 'table') {
+                    // Render as table within group
+                    const table = document.createElement('table');
+                    table.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Assigned To</th>
+                                <th>Project</th>
+                                <th>Due Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    `;
+
+                    const tbody = table.querySelector('tbody');
+                    tbody.innerHTML = groups[groupKey].map(task => {
+                        const assigneeNames = task.assignees && task.assignees.length > 0
+                            ? task.assignees.map(a => a.name).join(', ')
+                            : '-';
+                        const projectNames = task.projects && task.projects.length > 0
+                            ? task.projects.map(p => p.name).join(', ')
+                            : '-';
+
+                        return `
+                            <tr>
+                                <td><strong>${task.title}</strong><br><small>${task.description || ''}</small></td>
+                                <td><span class="status-badge status-${task.status}">${task.status}</span></td>
+                                <td><span class="priority-${task.priority}">${task.priority}</span></td>
+                                <td>${assigneeNames}</td>
+                                <td>${projectNames}</td>
+                                <td>${task.due_date ? new Date(task.due_date).toLocaleDateString() : '-'}</td>
+                                <td>
+                                    <div class="table-actions">
+                                        <select class="btn-small" onchange="updateTaskStatus(${task.id}, this.value)">
+                                            <option value="pending" ${task.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                            <option value="in-progress" ${task.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+                                            <option value="completed" ${task.status === 'completed' ? 'selected' : ''}>Completed</option>
+                                        </select>
+                                        <button class="btn-small btn-edit" onclick="editTask(${task.id})">Edit</button>
+                                        <button class="btn-small btn-delete" onclick="removeTask(${task.id})">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                    groupTasks.appendChild(table);
+                } else {
+                    // Render as cards within group
+                    const taskGrid = document.createElement('div');
+                    taskGrid.className = 'task-grid';
+                    taskGrid.innerHTML = groups[groupKey].map(task => {
+                        const assigneeNames = task.assignees && task.assignees.length > 0
+                            ? task.assignees.map(a => a.name).join(', ')
+                            : '';
+                        const projectNames = task.projects && task.projects.length > 0
+                            ? task.projects.map(p => p.name).join(', ')
+                            : '';
+
+                        return `
+                            <div class="task-card priority-${task.priority}">
+                                <div class="task-header">
+                                    <div class="task-title">${task.title}</div>
+                                    <div>
+                                        <button class="btn btn-edit" style="background: #ffc107; color: #212529; margin-right: 5px;" onclick="editTask(${task.id})">Edit</button>
+                                        <button class="btn btn-danger" onclick="removeTask(${task.id})">Delete</button>
+                                    </div>
+                                </div>
+                                <div class="task-meta">
+                                    <span class="status-badge status-${task.status}">${task.status}</span>
+                                    <span>Priority: ${task.priority}</span>
+                                    ${assigneeNames ? `<span>Assigned: ${assigneeNames}</span>` : ''}
+                                    ${projectNames ? `<span>Project: ${projectNames}</span>` : ''}
+                                    ${task.due_date ? `<span>Due: ${new Date(task.due_date).toLocaleDateString()}</span>` : ''}
+                                </div>
+                                ${task.description ? `<p>${task.description}</p>` : ''}
+                                <div style="margin-top: 10px;">
+                                    <select onchange="updateTaskStatus(${task.id}, this.value)" value="${task.status}">
+                                        <option value="pending" ${task.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                        <option value="in-progress" ${task.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+                                        <option value="completed" ${task.status === 'completed' ? 'selected' : ''}>Completed</option>
+                                    </select>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    groupTasks.appendChild(taskGrid);
+                }
+
+                groupSection.appendChild(groupTasks);
+                groupedView.appendChild(groupSection);
+            });
+        }
+
+        // Success popup functions
+        function showSuccessPopup(message) {
+            const popup = document.getElementById('successPopup');
+            const messageEl = document.getElementById('successMessage');
+            messageEl.textContent = message;
+            popup.classList.add('show');
+            
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 3000);
+        }
+
+        function hideSuccessPopup() {
+            document.getElementById('successPopup').classList.remove('show');
+        }
+
+        // Smart input parsing
+        let parsedTaskData = {
+            title: '',
+            assignees: [],
+            projects: [],
+            dueDate: null,
+            priority: 'medium',
+            status: 'pending'
+        };
+
+
+
+        function parseSmartInput() {
+            const input = document.getElementById('smartTaskInput').value;
+            if (!input.trim()) {
+                document.getElementById('detectedInfo').style.display = 'none';
+                return;
+            }
+
+            // Reset parsed data
+            parsedTaskData = {
+                title: input.trim(),
+                assignees: [],
+                projects: [],
+                dueDate: null,
+                priority: 'medium',
+                status: 'pending'
+            };
+
+            let detectedItems = [];
+
+            // Parse dates
+            const dateInfo = parseDateFromText(input);
+            if (dateInfo.date) {
+                parsedTaskData.dueDate = dateInfo.date;
+                detectedItems.push(`📅 Due: ${dateInfo.readable}`);
+            }
+
+            // Parse people mentions
+            const personInfo = parsePersonFromText(input);
+            if (personInfo.people && personInfo.people.length > 0) {
+                parsedTaskData.assignees = personInfo.people.map(p => p.id);
+                const names = personInfo.people.map(p => p.name);
+                document.getElementById('smartAssignee').value = parsedTaskData.assignees[0]; // Set first for UI display
+                if (names.length === 1) {
+                    detectedItems.push(`👤 Assigned to: ${names[0]}`);
+                } else {
+                    detectedItems.push(`👥 Assigned to: ${names.join(', ')}`);
+                }
+            } else {
+                document.getElementById('smartAssignee').value = '';
+            }
+
+            // Parse project mentions
+            const projectInfo = parseProjectFromText(input);
+            if (projectInfo.projects && projectInfo.projects.length > 0) {
+                parsedTaskData.projects = projectInfo.projects.map(p => p.id);
+                const names = projectInfo.projects.map(p => p.name);
+                document.getElementById('smartProject').value = parsedTaskData.projects[0]; // Set first for UI display
+                if (names.length === 1) {
+                    detectedItems.push(`📁 Project: ${names[0]}`);
+                } else {
+                    detectedItems.push(`📁 Projects: ${names.join(', ')}`);
+                }
+            } else {
+                document.getElementById('smartProject').value = '';
+            }
+
+            // Parse priority
+            const priority = parsePriorityFromText(input);
+            if (priority !== 'medium') {
+                parsedTaskData.priority = priority;
+                detectedItems.push(`⚡ Priority: ${priority}`);
+            }
+
+            // Clean title by removing detected elements
+            parsedTaskData.title = cleanTitleFromParsedElements(input);
+
+            // Show detected info
+            const detectedDiv = document.getElementById('detectedInfo');
+            if (detectedItems.length > 0) {
+                detectedDiv.innerHTML = '🤖 AI Detected: ' + detectedItems.join(' • ');
+                detectedDiv.style.display = 'block';
+            } else {
+                detectedDiv.style.display = 'none';
+            }
+        }
+
+        function parseDateFromText(text) {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+
+            const nextWeek = new Date(today);
+            nextWeek.setDate(nextWeek.getDate() + 7);
+
+            const patterns = [
+                { pattern: /\b(tomorrow|tmrw|tom|tomm)\b/i, date: tomorrow, readable: 'Tomorrow' },
+                { pattern: /\b(today)\b/i, date: today, readable: 'Today' },
+                { pattern: /\b(next week)\b/i, date: nextWeek, readable: 'Next Week' },
+                { pattern: /\b(monday|mon)\b/i, date: getNextWeekday(1), readable: 'Monday' },
+                { pattern: /\b(tuesday|tue)\b/i, date: getNextWeekday(2), readable: 'Tuesday' },
+                { pattern: /\b(wednesday|wed)\b/i, date: getNextWeekday(3), readable: 'Wednesday' },
+                { pattern: /\b(thursday|thu)\b/i, date: getNextWeekday(4), readable: 'Thursday' },
+                { pattern: /\b(friday|fri)\b/i, date: getNextWeekday(5), readable: 'Friday' },
+                { pattern: /\b(saturday|sat)\b/i, date: getNextWeekday(6), readable: 'Saturday' },
+                { pattern: /\b(sunday|sun)\b/i, date: getNextWeekday(0), readable: 'Sunday' }
+            ];
+
+            for (const p of patterns) {
+                if (p.pattern.test(text)) {
+                    return { date: p.date.toISOString().split('T')[0], readable: p.readable };
+                }
+            }
+
+            // Check for ordinal dates (12th, 3rd, 21st, etc.)
+            const ordinalMatch = text.match(/\b(\d{1,2})(st|nd|rd|th)\b/i);
+            if (ordinalMatch) {
+                const day = parseInt(ordinalMatch[1]);
+                if (day >= 1 && day <= 31) {
+                    const currentMonth = today.getMonth();
+                    const currentYear = today.getFullYear();
+                    let targetDate = new Date(currentYear, currentMonth, day);
+
+                    // If the date has passed this month, set it for next month
+                    if (targetDate < today) {
+                        targetDate = new Date(currentYear, currentMonth + 1, day);
+                    }
+
+                    return {
+                        date: targetDate.toISOString().split('T')[0],
+                        readable: targetDate.toLocaleDateString()
+                    };
+                }
+            }
+
+            // Check for month + day combinations (September 15, Sep 15, 15 September, etc.)
+            const monthNames = {
+                'january': 0, 'jan': 0,
+                'february': 1, 'feb': 1,
+                'march': 2, 'mar': 2,
+                'april': 3, 'apr': 3,
+                'may': 4,
+                'june': 5, 'jun': 5,
+                'july': 6, 'jul': 6,
+                'august': 7, 'aug': 7,
+                'september': 8, 'sep': 8, 'sept': 8,
+                'october': 9, 'oct': 9,
+                'november': 10, 'nov': 10,
+                'december': 11, 'dec': 11
+            };
+
+            // Pattern: "September 15" or "Sep 15"
+            const monthDayMatch = text.match(/\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\s+(\d{1,2})(st|nd|rd|th)?\b/i);
+            if (monthDayMatch) {
+                const monthName = monthDayMatch[1].toLowerCase();
+                const day = parseInt(monthDayMatch[2]);
+                const month = monthNames[monthName];
+
+                if (month !== undefined && day >= 1 && day <= 31) {
+                    const currentYear = today.getFullYear();
+                    let targetDate = new Date(currentYear, month, day);
+
+                    // If the date has passed this year, set it for next year
+                    if (targetDate < today) {
+                        targetDate = new Date(currentYear + 1, month, day);
+                    }
+
+                    return {
+                        date: targetDate.toISOString().split('T')[0],
+                        readable: targetDate.toLocaleDateString()
+                    };
+                }
+            }
+
+            // Pattern: "15 September" or "15 Sep"
+            const dayMonthMatch = text.match(/\b(\d{1,2})(st|nd|rd|th)?\s+(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\b/i);
+            if (dayMonthMatch) {
+                const day = parseInt(dayMonthMatch[1]);
+                const monthName = dayMonthMatch[3].toLowerCase();
+                const month = monthNames[monthName];
+
+                if (month !== undefined && day >= 1 && day <= 31) {
+                    const currentYear = today.getFullYear();
+                    let targetDate = new Date(currentYear, month, day);
+
+                    // If the date has passed this year, set it for next year
+                    if (targetDate < today) {
+                        targetDate = new Date(currentYear + 1, month, day);
+                    }
+
+                    return {
+                        date: targetDate.toISOString().split('T')[0],
+                        readable: targetDate.toLocaleDateString()
+                    };
+                }
+            }
+
+            // Check for specific date formats (MM/DD or MM/DD/YYYY)
+            const dateMatch = text.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/);
+            if (dateMatch) {
+                const month = parseInt(dateMatch[1]);
+                const day = parseInt(dateMatch[2]);
+                const year = dateMatch[3] ? parseInt(dateMatch[3]) : today.getFullYear();
+                const date = new Date(year, month - 1, day);
+                return { date: date.toISOString().split('T')[0], readable: date.toLocaleDateString() };
+            }
+
+            return { date: null, readable: null };
+        }
+
+        function getNextWeekday(targetDay) {
+            const today = new Date();
+            const currentDay = today.getDay();
+            const daysUntilTarget = (targetDay - currentDay + 7) % 7 || 7;
+            const targetDate = new Date(today);
+            targetDate.setDate(today.getDate() + daysUntilTarget);
+            return targetDate;
+        }
+
+        function parsePersonFromText(text) {
+            const textLower = text.toLowerCase();
+            const matchingPeople = [];
+
+            for (const person of people) {
+                // Create array of all possible names for this person
+                const namesToCheck = [
+                    person.name, // Full name
+                    person.name.split(' ')[0], // First name
+                    person.nickname1,
+                    person.nickname2,
+                    person.nickname3
+                ].filter(name => name && name.trim()); // Remove empty values
+
+                let bestMatch = null;
+                let maxSimilarityScore = 0;
+
+                // Check each name variant using contains matching
+                for (const nameVariant of namesToCheck) {
+                    const nameVariantLower = nameVariant.toLowerCase();
+
+                    // Check if the name is contained in the text or text contains the name
+                    if (textLower.includes(nameVariantLower) || nameVariantLower.includes(textLower.replace(/\b(with |@)\s*/gi, '').trim())) {
+                        // Calculate similarity score based on multiple factors
+                        let similarityScore = calculateSimilarityScore(textLower, nameVariantLower, nameVariant);
+
+                        if (similarityScore > maxSimilarityScore) {
+                            maxSimilarityScore = similarityScore;
+                            bestMatch = { person, matchedName: nameVariant, score: similarityScore };
+                        }
+                    }
+                }
+
+                if (bestMatch && bestMatch.score > 30) { // Only include matches with decent confidence
+                    matchingPeople.push(bestMatch);
+                }
+            }
+
+            // Return ALL matching people, not just the best one
+            if (matchingPeople.length > 0) {
+                // Sort by score and return all matches
+                matchingPeople.sort((a, b) => b.score - a.score);
+                return { people: matchingPeople.map(m => m.person) };
+            }
+
+            return { people: [] };
+        }
+
+        function parseProjectFromText(text) {
+            const textLower = text.toLowerCase();
+            const matchingProjects = [];
+
+            // Clean text by removing common words like 'for', 'project', 'about' etc.
+            const cleanText = textLower.replace(/\b(for|project|about|on|with|in)\s+/gi, '').trim();
+            const textWords = cleanText.split(/\s+/).filter(word => word.length > 1); // Filter out single characters
+
+            for (const project of projects) {
+                const projectNameLower = project.name.toLowerCase();
+                const projectWords = projectNameLower.split(/\s+/);
+
+                let similarityScore = 0;
+
+                // Check for exact match first
+                if (textLower.includes(projectNameLower) || projectNameLower.includes(cleanText)) {
+                    similarityScore = calculateSimilarityScore(textLower, projectNameLower, project.name);
+                } else {
+                    // Check for word-by-word matching
+                    for (const textWord of textWords) {
+                        for (const projectWord of projectWords) {
+                            if (textWord === projectWord) {
+                                similarityScore += 60; // Full word match
+                            } else if (textWord.length >= 3 && projectWord.length >= 3) {
+                                if (textWord.includes(projectWord) || projectWord.includes(textWord)) {
+                                    similarityScore += 40; // Partial word match
+                                }
+                            }
+                        }
+                    }
+
+                    // Bonus points for multiple word matches
+                    if (similarityScore > 0) {
+                        similarityScore += Math.min(textWords.length * projectWords.length * 5, 20);
+                    }
+                }
+
+                // NEW: Check project keywords for automatic assignment
+                const keywords = [
+                    project.keyword1,
+                    project.keyword2,
+                    project.keyword3,
+                    project.keyword4,
+                    project.keyword5
+                ].filter(keyword => keyword && keyword.trim());
+
+                for (const keyword of keywords) {
+                    const keywordLower = keyword.toLowerCase();
+                    if (textLower.includes(keywordLower)) {
+                        similarityScore += 80; // High score for keyword match
+                        console.log(`🔍 Keyword match found: "${keyword}" in "${text}" for project "${project.name}"`);
+                    }
+                    // Check partial keyword matches
+                    for (const textWord of textWords) {
+                        if (textWord === keywordLower) {
+                            similarityScore += 70; // Exact word match
+                        } else if (textWord.includes(keywordLower) || keywordLower.includes(textWord)) {
+                            if (textWord.length >= 3 && keywordLower.length >= 3) {
+                                similarityScore += 50; // Partial keyword match
+                            }
+                        }
+                    }
+                }
+
+                if (similarityScore > 30) { // Only include matches with decent confidence
+                    matchingProjects.push({ project, score: similarityScore });
+                }
+            }
+
+            // Return ALL matching projects, not just the best one
+            if (matchingProjects.length > 0) {
+                // Sort by score and return all matches
+                matchingProjects.sort((a, b) => b.score - a.score);
+                return { projects: matchingProjects.map(m => m.project) };
+            }
+
+            return { projects: [] };
+        }
+
+        function parsePriorityFromText(text) {
+            if (/\b(urgent|asap|high priority|important)\b/i.test(text)) {
+                return 'high';
+            }
+            if (/\b(low priority|later|sometime)\b/i.test(text)) {
+                return 'low';
+            }
+            return 'medium';
+        }
+
+        function calculateSimilarityScore(text, target, originalTarget) {
+            let score = 0;
+            const cleanText = text.replace(/\b(with |@|for |project |about )\s*/gi, '').trim();
+            const targetWords = target.toLowerCase().split(/\s+/);
+            const textWords = cleanText.toLowerCase().split(/\s+/);
+
+            // Exact match gets highest score
+            if (cleanText === target) {
+                score += 100;
+            }
+
+            // Check if any word from input matches any word in target
+            let wordMatches = 0;
+            for (const textWord of textWords) {
+                for (const targetWord of targetWords) {
+                    if (textWord === targetWord) {
+                        score += 60; // Full word match
+                        wordMatches++;
+                    } else if (textWord.includes(targetWord) || targetWord.includes(textWord)) {
+                        score += 40; // Partial word match
+                        wordMatches++;
+                    }
+                }
+            }
+
+            // Full word boundary match for entire phrase
+            const wordBoundaryRegex = new RegExp(`\\b${target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+            if (wordBoundaryRegex.test(text)) {
+                score += 80;
+            }
+
+            // Contains match - longer matches score higher
+            if (text.toLowerCase().includes(target)) {
+                score += 50 + (target.length / text.length) * 20;
+            } else if (target.includes(cleanText)) {
+                score += 45 + (cleanText.length / target.length) * 15;
+            }
+
+            // Bonus for multiple word matches (indicates stronger relevance)
+            if (wordMatches > 1) {
+                score += wordMatches * 10;
+            }
+
+            // Bonus for shorter target names (more specific)
+            if (originalTarget.length <= 10) {
+                score += 5;
+            }
+
+            // Bonus for matches at the beginning
+            if (target.toLowerCase().startsWith(cleanText.toLowerCase())) {
+                score += 15;
+            }
+
+            return Math.max(score, wordMatches > 0 ? 35 : 0); // Ensure any word match gets at least 35 points
+        }
+
+        function cleanTitleFromParsedElements(text) {
+            let cleaned = text
+                // Remove tomorrow variations
+                .replace(/\b(tomorrow|tmrw|tom|tomm|today|next week)\b/gi, '')
+                // Remove weekdays
+                .replace(/\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon|tue|wed|thu|fri|sat|sun)\b/gi, '')
+                // Remove ordinal dates
+                .replace(/\b(\d{1,2})(st|nd|rd|th)\b/gi, '')
+                // Remove month names (full and abbreviated)
+                .replace(/\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\b/gi, '')
+                // Remove date formats
+                .replace(/\b\d{1,2}\/\d{1,2}(\/\d{2,4})?\b/gi, '')
+                // Remove person mentions
+                .replace(/\b(with |@)[^\s]+\b/gi, '')
+                // Remove project mentions
+                .replace(/\b(for |project |about )[^\s]+\b/gi, '')
+                // Remove priority keywords
+                .replace(/\b(urgent|asap|high priority|important|low priority|later|sometime)\b/gi, '')
+                // Remove due date keywords
+                .replace(/\b(by |due )\b/gi, '')
+                // Clean up extra spaces
+                .replace(/\s+/g, ' ')
+                .trim();
+            return cleaned || text;
+        }
+
+        function handleEnterKey(event) {
+            if (event.key === 'Enter') {
+                addSmartTask();
+            }
+        }
+
+        function toggleAdvancedForm() {
+            const advancedForm = document.getElementById('advancedForm');
+            const isHidden = advancedForm.style.display === 'none';
+            advancedForm.style.display = isHidden ? 'block' : 'none';
+            event.target.textContent = isHidden ? 'Hide Advanced Options' : 'Show Advanced Options';
+        }
+
+        async function addSmartTask() {
+            if (!parsedTaskData.title.trim()) {
+                alert('Please enter a task');
+                return;
+            }
+
+            await postData('tasks', {
+                title: parsedTaskData.title,
+                description: '',
+                assignee_ids: parsedTaskData.assignees,
+                project_ids: parsedTaskData.projects,
+                priority: parsedTaskData.priority,
+                due_date: parsedTaskData.dueDate,
+                status: parsedTaskData.status
+            });
+
+            document.getElementById('smartTaskInput').value = '';
+            document.getElementById('detectedInfo').style.display = 'none';
+            document.getElementById('smartAssignee').value = '';
+            document.getElementById('smartProject').value = '';
+
+            showSuccessPopup('Task successfully added to database!');
+            loadTasks();
+        }
+
+        // Add functions
+        async function addPerson() {
+            const name = document.getElementById('personName').value.trim();
+            const email = document.getElementById('personEmail').value.trim();
+            const nickname1 = document.getElementById('nickname1').value.trim();
+            const nickname2 = document.getElementById('nickname2').value.trim();
+            const nickname3 = document.getElementById('nickname3').value.trim();
+            
+            if (!name) return alert('Name is required');
+            
+            // Check for case-insensitive duplicate names (including nicknames)
+            const existingPerson = people.find(p => {
+                const allNamesForPerson = [
+                    p.name,
+                    p.nickname1,
+                    p.nickname2,
+                    p.nickname3
+                ].filter(n => n && n.trim()).map(n => n.toLowerCase());
+                
+                const newNames = [
+                    name,
+                    nickname1,
+                    nickname2,
+                    nickname3
+                ].filter(n => n && n.trim()).map(n => n.toLowerCase());
+                
+                // Check if any new name matches any existing name
+                return newNames.some(newName => 
+                    allNamesForPerson.some(existingName => 
+                        existingName === newName
+                    )
+                );
+            });
+            
+            if (existingPerson) {
+                alert(`Person with this name already exists: "${existingPerson.name}"`);
+                return;
+            }
+            
+            await postData('people', { name, email, nickname1, nickname2, nickname3 });
+            document.getElementById('personName').value = '';
+            document.getElementById('personEmail').value = '';
+            document.getElementById('nickname1').value = '';
+            document.getElementById('nickname2').value = '';
+            document.getElementById('nickname3').value = '';
+            
+            showSuccessPopup('Person successfully added to database!');
+            loadPeople();
+        }
+
+        async function addProject() {
+            const name = document.getElementById('projectName').value.trim();
+            const description = document.getElementById('projectDescription').value;
+            const keyword1 = document.getElementById('keyword1').value.trim();
+            const keyword2 = document.getElementById('keyword2').value.trim();
+            const keyword3 = document.getElementById('keyword3').value.trim();
+            const keyword4 = document.getElementById('keyword4').value.trim();
+            const keyword5 = document.getElementById('keyword5').value.trim();
+
+            if (!name) return alert('Project name is required');
+
+            // Check for case-insensitive duplicate
+            const existingProject = projects.find(p =>
+                p.name.toLowerCase() === name.toLowerCase()
+            );
+
+            if (existingProject) {
+                alert(`Project "${existingProject.name}" already exists!`);
+                return;
+            }
+
+            await postData('projects', { name, description, keyword1, keyword2, keyword3, keyword4, keyword5 });
+            document.getElementById('projectName').value = '';
+            document.getElementById('projectDescription').value = '';
+            document.getElementById('keyword1').value = '';
+            document.getElementById('keyword2').value = '';
+            document.getElementById('keyword3').value = '';
+            document.getElementById('keyword4').value = '';
+            document.getElementById('keyword5').value = '';
+
+            showSuccessPopup('Project successfully added to database!');
+            loadProjects();
+        }
+
+        async function addTask() {
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+            const assigned_to = document.getElementById('taskAssignee').value || null;
+            const project_id = document.getElementById('taskProject').value || null;
+            const priority = document.getElementById('taskPriority').value;
+            const due_date = document.getElementById('taskDueDate').value || null;
+            const status = document.getElementById('taskStatus').value;
+            
+            if (!title) return alert('Task title is required');
+            
+            await postData('tasks', { 
+                title, 
+                description, 
+                assigned_to, 
+                project_id, 
+                priority, 
+                due_date,
+                status 
+            });
+            
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('taskDescription').value = '';
+            document.getElementById('taskAssignee').value = '';
+            document.getElementById('taskProject').value = '';
+            document.getElementById('taskPriority').value = 'medium';
+            document.getElementById('taskDueDate').value = '';
+            document.getElementById('taskStatus').value = 'pending';
+            
+            showSuccessPopup('Task successfully added to database!');
+            loadTasks();
+        }
+
+        // Render functions
+        function updatePeopleDropdown() {
+            const select = document.getElementById('taskAssignee');
+            select.innerHTML = '<option value="">Select person</option>';
+            people.forEach(person => {
+                select.innerHTML += `<option value="${person.id}">${person.name}</option>`;
+            });
+            
+            // Update smart dropdown too
+            const smartSelect = document.getElementById('smartAssignee');
+            smartSelect.innerHTML = '<option value="">Select person</option>';
+            people.forEach(person => {
+                smartSelect.innerHTML += `<option value="${person.id}">${person.name}</option>`;
+            });
+        }
+
+        function updateProjectsDropdown() {
+            const select = document.getElementById('taskProject');
+            select.innerHTML = '<option value="">Select project</option>';
+            projects.forEach(project => {
+                select.innerHTML += `<option value="${project.id}">${project.name}</option>`;
+            });
+            
+            // Update smart dropdown too
+            const smartSelect = document.getElementById('smartProject');
+            smartSelect.innerHTML = '<option value="">Select project</option>';
+            projects.forEach(project => {
+                smartSelect.innerHTML += `<option value="${project.id}">${project.name}</option>`;
+            });
+        }
+
+        function renderPeople() {
+            const container = document.getElementById('peopleList');
+            container.innerHTML = people.map(person => {
+                const nicknames = [person.nickname1, person.nickname2, person.nickname3]
+                    .filter(n => n && n.trim())
+                    .join(', ');
+                    
+                return `
+                    <div class="list-item">
+                        <div>
+                            <strong>${person.name}</strong>
+                            ${person.email ? `<br><small>📧 ${person.email}</small>` : ''}
+                            ${nicknames ? `<br><small>🏷️ Also known as: ${nicknames}</small>` : ''}
+                        </div>
+                        <div>
+                            <button class="btn-small btn-edit" onclick="editPerson(${person.id})">Edit</button>
+                            <button class="btn-small btn-delete" onclick="deletePerson(${person.id})">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Render people table
+            const tableBody = document.getElementById('peopleTableBody');
+            tableBody.innerHTML = people.map(person => {
+                const nicknames = [person.nickname1, person.nickname2, person.nickname3]
+                    .filter(n => n && n.trim())
+                    .join(', ');
+                    
+                return `
+                    <tr>
+                        <td>
+                            <strong>${person.name}</strong>
+                            ${nicknames ? `<br><small style="color: #6c757d;">Also: ${nicknames}</small>` : ''}
+                        </td>
+                        <td>${person.email || '-'}</td>
+                        <td>${new Date(person.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn-small btn-edit" onclick="editPerson(${person.id})">Edit</button>
+                                <button class="btn-small btn-delete" onclick="deletePerson(${person.id})">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderProjects() {
+            const container = document.getElementById('projectsList');
+            container.innerHTML = projects.map(project => {
+                const keywords = [project.keyword1, project.keyword2, project.keyword3, project.keyword4, project.keyword5]
+                    .filter(k => k && k.trim())
+                    .join(', ');
+
+                return `
+                    <div class="list-item">
+                        <div>
+                            <strong>${project.name}</strong>
+                            ${project.description ? `<br><small>${project.description}</small>` : ''}
+                            <br><small>Status: ${project.status}</small>
+                            ${keywords ? `<br><small>🏷️ Keywords: ${keywords}</small>` : ''}
+                        </div>
+                        <div>
+                            <button class="btn-small btn-edit" onclick="editProject(${project.id})">Edit</button>
+                            <button class="btn-small btn-delete" onclick="deleteProject(${project.id})">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Render projects table
+            const tableBody = document.getElementById('projectsTableBody');
+            tableBody.innerHTML = projects.map(project => {
+                const keywords = [project.keyword1, project.keyword2, project.keyword3, project.keyword4, project.keyword5]
+                    .filter(k => k && k.trim())
+                    .join(', ');
+
+                return `
+                    <tr>
+                        <td>
+                            <strong>${project.name}</strong>
+                            ${keywords ? `<br><small style="color: #6c757d;">Keywords: ${keywords}</small>` : ''}
+                        </td>
+                        <td>${project.description || '-'}</td>
+                        <td><span class="status-badge status-${project.status}">${project.status}</span></td>
+                        <td>${new Date(project.created_at).toLocaleDateString()}</td>
+                        <td>${new Date(project.updated_at).toLocaleDateString()}</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn-small btn-edit" onclick="editProject(${project.id})">Edit</button>
+                                <button class="btn-small btn-delete" onclick="deleteProject(${project.id})">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('tasksList');
+            container.innerHTML = filteredTasks.map(task => {
+                const assigneeNames = task.assignees && task.assignees.length > 0
+                    ? task.assignees.map(a => a.name).join(', ')
+                    : (task.person_name || '');
+
+                const projectNames = task.projects && task.projects.length > 0
+                    ? task.projects.map(p => p.name).join(', ')
+                    : (task.project_name || '');
+
+                return `
+                    <div class="task-card priority-${task.priority}">
+                        <div class="task-header">
+                            <div class="task-title">${task.title}</div>
+                            <div>
+                                <button class="btn btn-edit" style="background: #ffc107; color: #212529; margin-right: 5px;" onclick="editTask(${task.id})">Edit</button>
+                                <button class="btn btn-danger" onclick="removeTask(${task.id})">Delete</button>
+                            </div>
+                        </div>
+                        <div class="task-meta">
+                            <span class="status-badge status-${task.status}">${task.status}</span>
+                            <span>Priority: ${task.priority}</span>
+                            ${assigneeNames ? `<span>${task.assignees && task.assignees.length > 1 ? 'Assigned to' : 'Assigned'}: ${assigneeNames}</span>` : ''}
+                            ${projectNames ? `<span>${task.projects && task.projects.length > 1 ? 'Projects' : 'Project'}: ${projectNames}</span>` : ''}
+                            ${task.due_date ? `<span>Due: ${new Date(task.due_date).toLocaleDateString()}</span>` : ''}
+                        </div>
+                        ${task.description ? `<p>${task.description}</p>` : ''}
+                        <div style="margin-top: 10px;">
+                            <select onchange="updateTaskStatus(${task.id}, this.value)" value="${task.status}">
+                                <option value="pending" ${task.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="in-progress" ${task.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+                                <option value="completed" ${task.status === 'completed' ? 'selected' : ''}>Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+        }
+
+        function renderTasksTable() {
+            const tableBody = document.getElementById('tasksTableBody');
+            tableBody.innerHTML = filteredTasks.map(task => {
+                const assigneeNames = task.assignees && task.assignees.length > 0
+                    ? task.assignees.map(a => a.name).join(', ')
+                    : (task.person_name || '-');
+
+                const projectNames = task.projects && task.projects.length > 0
+                    ? task.projects.map(p => p.name).join(', ')
+                    : (task.project_name || '-');
+
+                return `
+                    <tr>
+                        <td><strong>${task.title}</strong><br><small>${task.description || ''}</small></td>
+                        <td><span class="status-badge status-${task.status}">${task.status}</span></td>
+                        <td><span class="priority-${task.priority}">${task.priority}</span></td>
+                        <td>${assigneeNames}</td>
+                        <td>${projectNames}</td>
+                        <td>${task.due_date ? new Date(task.due_date).toLocaleDateString() : '-'}</td>
+                        <td>${new Date(task.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <div class="table-actions">
+                                <select class="btn-small" onchange="updateTaskStatus(${task.id}, this.value)">
+                                    <option value="pending" ${task.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="in-progress" ${task.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+                                    <option value="completed" ${task.status === 'completed' ? 'selected' : ''}>Completed</option>
+                                </select>
+                                <button class="btn-small btn-edit" onclick="editTask(${task.id})">Edit</button>
+                                <button class="btn-small btn-delete" onclick="removeTask(${task.id})">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function updateTaskStatus(id, status) {
+            const task = tasks.find(t => t.id === id);
+            await updateTask(id, { ...task, status });
+            showSuccessPopup('Task status updated successfully!');
+            loadTasks();
+        }
+
+        async function removeTask(id) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                await deleteTask(id);
+                showSuccessPopup('Task deleted successfully!');
+                loadTasks();
+            }
+        }
+
+        // Modal functions
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Edit functions
+        let currentEditId = null;
+
+        function editTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            currentEditId = taskId;
+
+            // Populate form
+            document.getElementById('editTaskTitle').value = task.title;
+            document.getElementById('editTaskDescription').value = task.description || '';
+            document.getElementById('editTaskStatus').value = task.status;
+            document.getElementById('editTaskPriority').value = task.priority;
+            document.getElementById('editTaskDueDate').value = task.due_date || '';
+
+            // Populate assignees dropdown
+            const assigneesSelect = document.getElementById('editTaskAssignees');
+            assigneesSelect.innerHTML = people.map(person =>
+                `<option value="${person.id}" ${task.assignees && task.assignees.some(a => a.id === person.id) ? 'selected' : ''}>${person.name}</option>`
+            ).join('');
+
+            // Populate projects dropdown
+            const projectsSelect = document.getElementById('editTaskProjects');
+            projectsSelect.innerHTML = projects.map(project =>
+                `<option value="${project.id}" ${task.projects && task.projects.some(p => p.id === project.id) ? 'selected' : ''}>${project.name}</option>`
+            ).join('');
+
+            document.getElementById('taskEditModal').style.display = 'block';
+        }
+
+        async function saveTaskEdit() {
+            const assigneeSelect = document.getElementById('editTaskAssignees');
+            const projectSelect = document.getElementById('editTaskProjects');
+
+            const assigneeIds = Array.from(assigneeSelect.selectedOptions).map(option => option.value);
+            const projectIds = Array.from(projectSelect.selectedOptions).map(option => option.value);
+
+            const taskData = {
+                title: document.getElementById('editTaskTitle').value,
+                description: document.getElementById('editTaskDescription').value,
+                status: document.getElementById('editTaskStatus').value,
+                priority: document.getElementById('editTaskPriority').value,
+                due_date: document.getElementById('editTaskDueDate').value || null,
+                assignee_ids: assigneeIds,
+                project_ids: projectIds
+            };
+
+            await updateTask(currentEditId, taskData);
+            closeModal('taskEditModal');
+            showSuccessPopup('Task updated successfully!');
+            loadTasks();
+        }
+
+        function editPerson(personId) {
+            const person = people.find(p => p.id === personId);
+            if (!person) return;
+
+            currentEditId = personId;
+
+            document.getElementById('editPersonName').value = person.name;
+            document.getElementById('editPersonEmail').value = person.email || '';
+            document.getElementById('editPersonNickname1').value = person.nickname1 || '';
+            document.getElementById('editPersonNickname2').value = person.nickname2 || '';
+            document.getElementById('editPersonNickname3').value = person.nickname3 || '';
+
+            document.getElementById('personEditModal').style.display = 'block';
+        }
+
+        async function savePersonEdit() {
+            const personData = {
+                name: document.getElementById('editPersonName').value,
+                email: document.getElementById('editPersonEmail').value,
+                nickname1: document.getElementById('editPersonNickname1').value,
+                nickname2: document.getElementById('editPersonNickname2').value,
+                nickname3: document.getElementById('editPersonNickname3').value
+            };
+
+            await updatePerson(currentEditId, personData);
+            closeModal('personEditModal');
+            showSuccessPopup('Person updated successfully!');
+            loadPeople();
+        }
+
+        function editProject(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+
+            currentEditId = projectId;
+
+            document.getElementById('editProjectName').value = project.name;
+            document.getElementById('editProjectDescription').value = project.description || '';
+            document.getElementById('editProjectStatus').value = project.status;
+            document.getElementById('editKeyword1').value = project.keyword1 || '';
+            document.getElementById('editKeyword2').value = project.keyword2 || '';
+            document.getElementById('editKeyword3').value = project.keyword3 || '';
+            document.getElementById('editKeyword4').value = project.keyword4 || '';
+            document.getElementById('editKeyword5').value = project.keyword5 || '';
+
+            document.getElementById('projectEditModal').style.display = 'block';
+        }
+
+        async function saveProjectEdit() {
+            const projectData = {
+                name: document.getElementById('editProjectName').value,
+                description: document.getElementById('editProjectDescription').value,
+                status: document.getElementById('editProjectStatus').value,
+                keyword1: document.getElementById('editKeyword1').value,
+                keyword2: document.getElementById('editKeyword2').value,
+                keyword3: document.getElementById('editKeyword3').value,
+                keyword4: document.getElementById('editKeyword4').value,
+                keyword5: document.getElementById('editKeyword5').value
+            };
+
+            await updateProject(currentEditId, projectData);
+            closeModal('projectEditModal');
+            showSuccessPopup('Project updated successfully!');
+            loadProjects();
+        }
+
+        // Delete functions
+        async function deletePerson(personId) {
+            if (confirm('Are you sure you want to delete this person?')) {
+                await fetch(`/api/people/${personId}`, { method: 'DELETE' });
+                showSuccessPopup('Person deleted successfully!');
+                loadPeople();
+            }
+        }
+
+        async function deleteProject(projectId) {
+            if (confirm('Are you sure you want to delete this project?')) {
+                await fetch(`/api/projects/${projectId}`, { method: 'DELETE' });
+                showSuccessPopup('Project deleted successfully!');
+                loadProjects();
+            }
+        }
+
+        // Update functions for people and projects
+        async function updatePerson(id, data) {
+            const response = await fetch(`/api/people/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return response.json();
+        }
+
+        async function updateProject(id, data) {
+            const response = await fetch(`/api/projects/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return response.json();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = ['taskEditModal', 'personEditModal', 'projectEditModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPeople();
+            loadProjects();
+            loadTasks();
+        });
+    </script>
+</body>
+</html>
